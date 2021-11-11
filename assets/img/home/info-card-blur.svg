@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="335px" height="168px" viewBox="0 0 335 168" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>矩形</title>
+    <defs>
+        <linearGradient x1="-2.58586775%" y1="63.5452449%" x2="100%" y2="37.4252618%" id="linearGradient-1">
+            <stop stop-color="#B7A5E3" offset="0%"></stop>
+            <stop stop-color="#ADA1F3" offset="17.0677922%"></stop>
+            <stop stop-color="#8DD1FB" offset="52.2314946%"></stop>
+            <stop stop-color="#7CCDF8" offset="80.8253373%"></stop>
+            <stop stop-color="#6EACF7" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="0817代币详情页" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="代币详情页" transform="translate(-20.000000, -110.000000)" fill="url(#linearGradient-1)">
+            <g id="编组-17" transform="translate(20.000000, 110.000000)">
+                <rect id="矩形" x="0" y="0" width="335" height="168" rx="20"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,15 @@
+// Change theme color variable
+$--color-primary: #3179ff; // primary
+// $--color-success: #67c23a; // success
+// $--color-warning: #e6a23c; // warning
+$--color-danger: #ff583d; // danger
+// $--color-info: #909399; // info
+$--color-text-primary: #333333; // text primary
+$--color-text-regular: #666666; // text regular
+// $--color-text-secondary: #909399; // text secondary
+// $--color-text-placeholder: #c0c4cc; // text placeholder
+
+// change icon Font path variable, required
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+@import '~element-ui/packages/theme-chalk/src/index';

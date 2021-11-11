@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>矩形</title>
+    <g id="0708login蓝湖" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="用户已经设置pin的情况" transform="translate(-333.000000, -56.000000)">
+            <g id="编组-3" transform="translate(333.000000, 56.000000)">
+                <rect id="矩形" fill="#FFFFFF" fill-rule="nonzero" opacity="0" x="0" y="0" width="22" height="22"></rect>
+                <g id="编组" transform="translate(3.000000, 4.000000)" fill="#3D3D3D">
+                    <rect id="矩形" x="0" y="0" width="16" height="2" rx="1"></rect>
+                    <rect id="矩形备份-8" x="0" y="6" width="16" height="2" rx="1"></rect>
+                    <rect id="矩形备份-9" x="0" y="12" width="16" height="2" rx="1"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
