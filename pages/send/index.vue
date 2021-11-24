@@ -252,6 +252,19 @@ export default {
         this.Sea.params('unipass_ret', '')
       }
     }
+
+    const url = new URL(window.location)
+
+    if (url.searchParams.has('address') && url.searchParams.has('amount')) {
+      this.form.address = url.searchParams.get('address') || ''
+      this.form.amount = url.searchParams.get('amount') || ''
+
+      url.searchParams.delete('address')
+      url.searchParams.delete('amount')
+
+      window.history.replaceState({ path: url.href }, '', url.href)
+      this.bindBlur()
+    }
   },
   methods: {
     t_(key, data = {}) {
@@ -504,7 +517,7 @@ export default {
         const txHash = await rpc.send_transaction(txObj, 'passthrough')
         if (txHash) {
           this.$message.success(this.t_('SendSuccess'))
-          this.pendingList(txHash, pending)
+          this.pendingList(txHash, pending, txObj)
         } else {
           this.$message.error(this.t_('SendFailed'))
         }
@@ -522,7 +535,7 @@ export default {
         const txHash = await getSUDTSignCallback(sig, txObj)
         if (txHash) {
           this.$message.success(this.t_('SendSuccess'))
-          this.pendingList(txHash, pending)
+          this.pendingList(txHash, pending, txObj)
         } else {
           this.$message.error(this.t_('SendFailed'))
         }
@@ -533,7 +546,11 @@ export default {
       this.Sea.params('unipass_ret', '')
       this.loading = false
     },
-    pendingList(txHash, pending) {
+    pendingList(txHash, pending, txObj) {
+      const outPoints = (txObj?.inputs || []).map(
+        (item) => item.previous_output,
+      )
+
       const pendingList = this.Sea.localStorage('pendingList') || []
       pendingList.push({
         hash: txHash,
@@ -544,6 +561,7 @@ export default {
         amount: pending.amount,
         direction: 'out',
         name: this.name,
+        outPoints,
       })
       this.Sea.localStorage('pendingList', pendingList)
       const query = this.$route.query

@@ -107,10 +107,16 @@
             v-for="(tx, i) in formatTxList"
             :key="i"
             class="tx"
-            :class="[formatState(tx), tx.type]"
+            :class="[
+              formatState(tx),
+              tx.type,
+              isRejected(tx) ? 'rejected' : '',
+            ]"
             @click="bindTx(tx)"
           >
+            <span v-if="isRejected(tx)" class="state">×</span>
             <imgs
+              v-else
               class="state"
               :src="require(`~/assets/img/asset/${formatState(tx)}.svg`)"
             />
@@ -122,7 +128,15 @@
                 {{ dayjs(tx.time).format('YYYY/M/D A h:mm') }}
               </div>
             </div>
-            <div class="balance">{{ formatBalance(tx) }}</div>
+            <div class="balance">
+              <span>{{ formatBalance(tx) }}</span>
+              <span
+                v-if="isRejected(tx)"
+                class="resend"
+                @click="resend(tx, $event)"
+                >resend</span
+              >
+            </div>
           </div>
           <div v-loading="loading" class="more">
             <div v-if="hasMore" class="load" @click="bindMore">
@@ -142,6 +156,7 @@ import dayjs from 'dayjs'
 import { Amount, AmountUnit } from '@lay2/pw-core'
 import Qrcode from '~/components/qrcode.vue'
 import TxItem from '~/components/tx.vue'
+import { checkCellsIsLive } from '~/assets/js/helper'
 export default {
   name: 'Asset',
   components: { Qrcode, TxItem },
@@ -152,6 +167,7 @@ export default {
       direction: 'all',
       txList: [],
       pendingList: [],
+      pendingListLives: {} /* as { [txHash: string]: boolean } */,
       loading: false,
       showQRCode: false,
       showTxItem: false,
@@ -159,6 +175,8 @@ export default {
       size: 10,
       activeTab: this.$route.query.tab || 'token',
       itemTx: {},
+
+      refreshTxRecordInterval: null,
     }
   },
   computed: {
@@ -180,7 +198,8 @@ export default {
         if (pending.name !== this.name) {
           pendingListAll.push(pending)
         } else {
-          const mins = dayjs().diff(dayjs(pending.time), 'minute')
+          // TODO replace me to minute
+          const mins = dayjs().diff(dayjs(pending.time), 'day')
           // pending Less than ten minutes
           if (mins < 10) {
             const index = this.txList.findIndex((e) => e.hash === pending.hash)
@@ -257,6 +276,13 @@ export default {
   },
   mounted() {
     this.initPending()
+
+    this.refreshTxRecordInterval = setInterval(() => {
+      this.refreshTxRecords()
+    }, 1000 * 3)
+  },
+  beforeDestroy() {
+    clearInterval(this.refreshTxRecordInterval)
   },
   methods: {
     dayjs,
@@ -373,6 +399,19 @@ export default {
           direction: this.direction,
         },
       })
+
+      const outPoints = this.pendingList.flatMap((item) => item.outPoints)
+      const outPointsLives = await checkCellsIsLive(outPoints)
+
+      let offset = 0
+      this.pendingListLives = this.pendingList.reduce((result, pendingItem) => {
+        result[pendingItem.hash] = outPointsLives
+          .slice(offset, offset + pendingItem.outPoints.length)
+          .every((isLive) => isLive)
+        offset += pendingItem.outPoints.length
+        return result
+      }, {})
+
       if (res.code === 200) {
         const pendingList = this.Sea.localStorage('pendingList')
         if (pendingList) {
@@ -386,6 +425,20 @@ export default {
           }
         }
       }
+    },
+    isRejected(tx) {
+      return tx.type === 'pending' && this.pendingListLives[tx.hash] === false
+    },
+    resend(tx, event) {
+      event.stopPropagation()
+      this.$router.push({
+        path: '/send',
+        query: {
+          address: tx.to,
+          amount: this.formatSupply(tx.amount),
+          ...this.$route.query,
+        },
+      })
     },
   },
   sockets: {
@@ -677,6 +730,16 @@ export default {
             font-size: 14px;
             font-weight: bold;
             margin-left: auto;
+          }
+
+          .resend {
+            opacity: 1;
+            margin-left: auto;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 12px;
+            color: #3179FF;
+            line-height: 20px;
           }
         }
 
