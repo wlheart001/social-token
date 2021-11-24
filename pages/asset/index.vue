@@ -198,8 +198,7 @@ export default {
         if (pending.name !== this.name) {
           pendingListAll.push(pending)
         } else {
-          // TODO replace me to minute
-          const mins = dayjs().diff(dayjs(pending.time), 'day')
+          const mins = dayjs().diff(dayjs(pending.time), 'minute')
           // pending Less than ten minutes
           if (mins < 10) {
             const index = this.txList.findIndex((e) => e.hash === pending.hash)
@@ -434,8 +433,7 @@ export default {
       this.$router.push({
         path: '/send',
         query: {
-          address: tx.to,
-          amount: this.formatSupply(tx.amount),
+          resend: tx.hash,
           ...this.$route.query,
         },
       })

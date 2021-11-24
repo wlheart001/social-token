@@ -253,18 +253,47 @@ export default {
       }
     }
 
+    // handle resend
     const url = new URL(window.location)
+    if (!url.searchParams.has('resend')) return
 
-    if (url.searchParams.has('address') && url.searchParams.has('amount')) {
-      this.form.address = url.searchParams.get('address') || ''
-      this.form.amount = url.searchParams.get('amount') || ''
+    const resendHash = url.searchParams.get('resend') || ''
+    const pendingList = this.Sea.localStorage('pendingList')
 
-      url.searchParams.delete('address')
-      url.searchParams.delete('amount')
+    const foundResendIndex = (pendingList || []).findIndex((tx) => {
+      return tx.hash === resendHash && tx.type === 'pending'
+    })
 
-      window.history.replaceState({ path: url.href }, '', url.href)
-      this.bindBlur()
-    }
+    if (foundResendIndex === -1) return
+
+    const resendTx = pendingList[foundResendIndex]
+
+    this.form.address = resendTx.to
+    this.form.amount = /* format amount */ ((amount) => {
+      if (this.name === 'CKB') {
+        return amount
+      }
+      if (amount) {
+        const balance = new Amount(amount, AmountUnit.shannon)
+        const string = balance.toString(this.decimals, {
+          commify: true,
+          fixed: this.decimals >= 4 ? 4 : this.decimals || undefined,
+        })
+        return string
+      }
+      return ''
+    })(resendTx.amount)
+
+    url.searchParams.delete('resend')
+
+    // remove resent tx in pending list
+    this.Sea.localStorage('pendingList', [
+      ...pendingList.slice(0, foundResendIndex),
+      ...pendingList.slice(foundResendIndex + 1),
+    ])
+
+    window.history.replaceState({ path: url.href }, '', url.href)
+    this.bindBlur()
   },
   methods: {
     t_(key, data = {}) {
