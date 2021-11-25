@@ -122,7 +122,7 @@
             />
             <div class="info">
               <div class="address">
-                {{ formatAddress(tx.from) }}
+                {{ formatAddress(tx.direction === 'out' ? tx.to : tx.from) }}
               </div>
               <div class="time">
                 {{ dayjs(tx.time).format('YYYY/M/D A h:mm') }}
