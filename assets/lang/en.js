@@ -51,6 +51,8 @@ module.exports = {
     Out: 'Out',
     loadMore: 'Loading more',
     Pending: 'Pending',
+    RejectedTransaction:
+      'A congestion makes the transfer failed, your funds are still in wallet',
     RequestFailed: 'Request failed',
   },
   send: {
@@ -70,7 +72,8 @@ module.exports = {
     RejectSign: 'Refuse to sign',
     PubkeyMismatch: 'Incorrect pubkey',
     CannotYour: 'Unable to tansfer to yourself',
-    DoesNot: 'The receiver has no cell to store this asset which needs 143 CKB, you do not have enough CKB',
+    DoesNot:
+      'The receiver has no cell to store this asset which needs 143 CKB, you do not have enough CKB',
     BeCareful: 'Attention',
     SendAllTip: 'The left amount is too low, do you want to send all?',
     SendAll: 'Send all',
