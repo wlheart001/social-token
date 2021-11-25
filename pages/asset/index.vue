@@ -198,7 +198,7 @@ export default {
         if (pending.name !== this.name) {
           pendingListAll.push(pending)
         } else {
-          const mins = dayjs().diff(dayjs(pending.time), 'day')
+          const mins = dayjs().diff(dayjs(pending.time), 'minute')
           // pending Less than ten minutes
           if (mins < 10) {
             const index = this.txList.findIndex((e) => e.hash === pending.hash)
