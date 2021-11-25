@@ -114,7 +114,7 @@
             ]"
             @click="bindTx(tx)"
           >
-            <span v-if="isRejected(tx)" class="state">×</span>
+            <span v-if="isRejected(tx)" class="state rejected">×</span>
             <imgs
               v-else
               class="state"
@@ -198,7 +198,7 @@ export default {
         if (pending.name !== this.name) {
           pendingListAll.push(pending)
         } else {
-          const mins = dayjs().diff(dayjs(pending.time), 'minute')
+          const mins = dayjs().diff(dayjs(pending.time), 'day')
           // pending Less than ten minutes
           if (mins < 10) {
             const index = this.txList.findIndex((e) => e.hash === pending.hash)
@@ -335,6 +335,11 @@ export default {
       })
     },
     bindTx(tx) {
+      if (this.isRejected(tx)) {
+        this.$message.info(this.t_('RejectedTransaction'))
+        return
+      }
+
       if (tx.type === 'pending') {
         console.log('txHash', process.env.CKB_EXPLORER_URL + tx.hash)
         this.$message.info(this.t_('Pending'))
@@ -705,6 +710,11 @@ export default {
             width: 20px;
             height: 20px;
           }
+
+          .state.rejected{
+            font-size: 20px;
+            text-align: center;
+           }
 
           .info {
             margin-left: 4px;

@@ -51,6 +51,7 @@ module.exports = {
     Out: '转出',
     loadMore: '加载更多',
     Pending: '交易进行中',
+    RejectedTransaction: '您的资产还在钱包中，但交易拥堵导致转账失败了',
     RequestFailed: '请求失败',
   },
   send: {
