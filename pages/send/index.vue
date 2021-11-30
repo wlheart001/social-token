@@ -642,7 +642,6 @@ export default {
               })
               if (code && this.isAddressValid(code.data)) {
                 this.form.address = code.data
-                camera.pause()
                 this.stopScan()
               }
             }
@@ -657,7 +656,7 @@ export default {
     },
     stopScan() {
       this.isScanning = false
-      this.$refs.camera.srcObject = null
+      this.$refs.camera.pause()
       if (this.frameId) {
         const cancelAnimationFrame =
           window.cancelAnimationFrame || window.mozCancelAnimationFrame
@@ -665,6 +664,8 @@ export default {
         cancelAnimationFrame(this.frameId)
         this.frameId = undefined
       }
+      this.$refs.camera.srcObject.getTracks().forEach((track) => track.stop())
+      this.$refs.camera.srcObject = null
     },
     isAddressValid(address) {
       if (!address) {
@@ -726,14 +727,15 @@ export default {
     height: 0;
     left: 100%;
     top: 100%;
-    &[attr-scanning='true'] {
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height 100vh;
-    background: #000;
-    object-fix: contain;
-  }
+      &[attr-scanning='true'] {
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height 100vh;
+      background: #000;
+      object-fix: contain;
+      z-index: 998;
+    }
   }
   .scan {
     display: flex;
