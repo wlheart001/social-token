@@ -69,7 +69,7 @@ export class SimpleSUDTBuilder extends Builder {
   }> {
     let senderInputSUDTSum = new Amount('0')
     let senderInputCKBSum = new Amount('0')
-    let minSenderOccupiedCKBSum = new Amount('1')
+    let minSenderOccupiedCKBSum = new Amount('0.1')
 
     let receiverAmount = new Amount('0')
 
@@ -180,7 +180,7 @@ export class SimpleSUDTBuilder extends Builder {
   }
 
   /**
-   * Fetch pure CKB cells to fullfill the need CKB amount
+   * Fetch pure CKB cells to fulfill the need CKB amount
    * @param ckbAmount  needed CKB amount
    */
   async buildCKBCells(ckbAmount: Amount): Promise<Transaction> {

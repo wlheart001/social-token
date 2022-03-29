@@ -22,7 +22,8 @@ export async function getBalanceEnough() {
     )
     console.log('balance=', balance)
     // critical value .add(Builder.MIN_CHANGE) +61
-    return balance.gte(new Amount('143', AmountUnit.ckb))
+    // 142(sUDT occupied) + 0.6(fee), 0.6 CKB is enough to transfer about 30,000 times
+    return balance.gt(new Amount('142.6', AmountUnit.ckb))
   }
 }
 
@@ -47,7 +48,8 @@ export async function getSimpleUSDTSignMessage(
       output_type: '',
     },
     collector,
-    minimumOutputCellCapacity: new Amount('143'),
+    // sender can leave a minimum of 0.1 CKB as a fee
+    minimumOutputCellCapacity: new Amount('142.5'),
   }
 
   const sudt = new SUDT(sudtTokenId)
