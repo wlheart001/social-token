@@ -2,6 +2,7 @@ import {
   Address,
   Amount,
   BuilderOption,
+  Message,
   normalizers,
   Reader,
   RPC,
@@ -15,6 +16,7 @@ import UnipassSigner from '../UnipassSigner'
 import { SUDTBuilder } from './sudt-builder'
 import { UsdtProvider } from './sudt-provider'
 import { UnipassIndexerCollector } from './unipass-indexer-collector'
+import { parseToAddress, parseToLomusScript } from '../utils'
 
 export async function getUSDTSignMessage(
   sudtTokenId: string,
@@ -73,6 +75,33 @@ export async function getSUDTSignCallback(sig: string, txObj: any) {
 
   const transformedTx = await transformers.TransformTransaction(txObj)
   // console.log('transformedTx', JSON.stringify(transformedTx))
+  const rpc = new RPC(process.env.CKB_NODE_URL as string)
+  try {
+    const txhash = await rpc.send_transaction(transformedTx, 'passthrough')
+    return txhash
+  } catch (e) {
+    console.log(e)
+    return false
+  }
+}
+
+export async function sendTx(sig: string, isMainNet: boolean, txObj: any, myAddr: string, signMsgs: Message[]) {
+  const witnessArgs: WitnessArgs = {
+    lock: '0x01' + sig.replace('0x', ''),
+    input_type: '',
+    output_type: '',
+  }
+  const witness = new Reader(
+    SerializeWitnessArgs(normalizers.NormalizeWitnessArgs(witnessArgs)),
+  ).serializeJson()
+
+  for (const msg of signMsgs) {
+    if (parseToAddress(isMainNet, parseToLomusScript(msg.lock)) === myAddr)  {
+      txObj.witnesses[msg.index] = witness
+    }
+  }
+
+  const transformedTx = await transformers.TransformTransaction(txObj)
   const rpc = new RPC(process.env.CKB_NODE_URL as string)
   try {
     const txhash = await rpc.send_transaction(transformedTx, 'passthrough')
