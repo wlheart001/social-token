@@ -17,7 +17,21 @@
         </div>
         <div class="right">{{ balance }}</div>
       </div>
-      <div class="bottom">
+      <div v-if="canDeposit" class="bottom">
+        <div class="btn-smaller left" @click="showQRCode = true">
+          <span>{{ t_('Collection') }}</span>
+          <img src="~/assets/img/asset/qrcode.svg" />
+        </div>
+        <div class="btn-smaller" @click="bindSend">
+          <span>{{ t_('Send') }}</span>
+          <img src="~/assets/img/asset/send.svg" />
+        </div>
+        <div class="btn-biger right" @click="bindDepositToGodwoken">
+          <span>{{ t_('DepositToGodwoken') }}</span>
+          <img src="~/assets/img/asset/send.svg" />
+        </div>
+      </div>
+      <div v-else class="bottom">
         <div class="btn left" @click="showQRCode = true">
           <span>{{ t_('Collection') }}</span>
           <img src="~/assets/img/asset/qrcode.svg" />
@@ -157,6 +171,7 @@ import { Amount, AmountUnit } from '@lay2/pw-core'
 import Qrcode from '~/components/qrcode.vue'
 import TxItem from '~/components/tx.vue'
 import { checkCellsIsLive } from '~/assets/js/helper'
+
 export default {
   name: 'Asset',
   components: { Qrcode, TxItem },
@@ -252,6 +267,9 @@ export default {
         return this.asset.typeHash
       }
     },
+    canDeposit() {
+      return this.asset.typeHash === process.env.COOP_TYPE_HASH
+    },
   },
   watch: {
     typeHash() {
@@ -331,6 +349,12 @@ export default {
     bindSend() {
       this.$router.push({
         path: '/send',
+        query: this.$route.query,
+      })
+    },
+    bindDepositToGodwoken() {
+      this.$router.push({
+        path: '/deposit',
         query: this.$route.query,
       })
     },
@@ -528,6 +552,44 @@ export default {
         justify-content: center;
         align-items: center;
         width: 142px;
+        height: 38px;
+        background: #FFFFFF;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #3179FF;
+        line-height: 20px;
+
+        img {
+          margin-left: 5px;
+        }
+      }
+
+      .btn-smaller {
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100px;
+        height: 38px;
+        background: #FFFFFF;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #3179FF;
+        line-height: 20px;
+
+        img {
+          margin-left: 4px;
+        }
+      }
+
+      .btn-biger {
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 198px;
         height: 38px;
         background: #FFFFFF;
         border-radius: 10px;
