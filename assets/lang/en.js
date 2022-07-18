@@ -39,6 +39,7 @@ module.exports = {
     title: 'Asset details',
     Collection: 'Receive',
     Send: 'Send',
+    DepositAllToGodwoken: 'Deposit all to Godwoken',
     TokenDetails: 'Token details',
     Publisher: 'Publisher',
     TokenTotal: 'Total supply: ',
@@ -54,6 +55,15 @@ module.exports = {
     RejectedTransaction:
       'A congestion makes the transfer failed, your funds are still in wallet',
     RequestFailed: 'Request failed',
+    TransactionFailed: 'Transaction failed',
+    RejectSign: 'Refuse to sign',
+    PubkeyMismatch: 'Incorrect pubkey',
+    TipTitleNote: 'Note',
+    TipCkbInsufficient: `Your CKB is less than 325 CKB.`,
+    TipConfirm: 'Confim',
+    TipSudtAmountZero: `Your sUDT amount is 0.`,
+    TipTitleTransactionSuccess: 'Transaction submitted',
+    TipDeposit: `The transaction has been sent, please check it in Godwoken: `,
   },
   send: {
     title: 'Transfer',
