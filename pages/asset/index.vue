@@ -26,7 +26,7 @@
           <span>{{ t_('Send') }}</span>
           <img src="~/assets/img/asset/send.svg" />
         </div>
-        <div class="btn-biger right" v-loading="depositLoading" @click="bindDepositAllToGodwoken">
+        <div class="btn-biger right" @click="bindDepositAllToGodwoken">
           <span>{{ t_('DepositAllToGodwoken') }}</span>
           <img src="~/assets/img/asset/send.svg" />
         </div>
@@ -167,13 +167,10 @@
 </template>
 <script>
 import dayjs from 'dayjs'
-import { Address, AddressType, Amount, AmountUnit, HashType, Script } from '@lay2/pw-core'
+import { Amount, AmountUnit } from '@lay2/pw-core'
 import Qrcode from '~/components/qrcode.vue'
 import TxItem from '~/components/tx.vue'
 import { checkCellsIsLive } from '~/assets/js/helper'
-import { buildDepositSudtSignMessage, minCkbToDeposit } from '~/assets/js/sudt/deposit-sudt-builder'
-import { getSUDTSignCallback } from '~/assets/js/sudt/sudt-tranfer'
-import { isCkbEnough } from '~/assets/js/sudt/utils'
 
 export default {
   name: 'Asset',
@@ -193,17 +190,11 @@ export default {
       size: 10,
       activeTab: this.$route.query.tab || 'token',
       itemTx: {},
-      depositLoading: false,
-      disableDeposit: false,
-      GODWOKEN_BRIDGE_URL: process.env.GODWOKEN_BRIDGE_URL,
 
       refreshTxRecordInterval: null,
     }
   },
   computed: {
-    provider() {
-      return this.$store.state.provider
-    },
     address() {
       return this.$store.state.provider.address
     },
@@ -251,15 +242,6 @@ export default {
         }
       }
       return {}
-    },
-    sudtAmount() {
-      return this.asset.sudtAmount
-    },
-    sudtTokenId() {
-      if (this.asset && this.asset.typeScript) {
-        return this.asset.typeScript.args
-      }
-      return ''
     },
     decimals() {
       return this.asset.decimals || AmountUnit.shannon
@@ -315,22 +297,6 @@ export default {
     this.refreshTxRecordInterval = setInterval(() => {
       this.refreshTxRecords()
     }, 1000 * 3)
-
-    const ret = this.Sea.json(this.$route.query.unipass_ret)
-    if (ret) {
-      if (ret.info === 'sign success') {
-        this.sendDepositAllToGwTx(ret.data.sig)
-      } else if (ret.info === 'sign fail') {
-        this.$message.error(this.t_('RejectSign'))
-      } else if (ret.info === 'pubkey not match') {
-        // pubkey not match
-        this.$message.error(this.t_('PubkeyMismatch'))
-      } else {
-        this.Sea.params('unipass_ret', '')
-      }
-      this.disableDeposit = false
-      this.depositLoading = false
-    }
   },
   beforeDestroy() {
     clearInterval(this.refreshTxRecordInterval)
@@ -387,87 +353,10 @@ export default {
       })
     },
     async bindDepositAllToGodwoken() {
-      try {
-        await this.depositAllToGodwoken()
-      } catch (error) {
-        const message = error.message
-        console.error(message)
-        this.$message.error(message)
-      }
-    },
-    async depositAllToGodwoken() {
-      if (this.disableDeposit) {
-        return
-      }
-      this.disableDeposit = true
-      this.depositLoading = true
-
-      const provider = this.provider
-      const toAddress = this.getGodwokenDepositLock().toAddress().toCKBAddress()
-
-      const enough = await isCkbEnough(minCkbToDeposit)
-
-      if (enough) {
-        if (toAddress && this.sudtAmount && this.sudtTokenId) {
-          const { tx, txObj, message } = await buildDepositSudtSignMessage(
-            this.sudtTokenId,
-            new Address(toAddress, AddressType.ckb),
-            this.sudtAmount,
-            provider.pubkey,
-          )
-          this.Sea.localStorage('depositAllToGwTx', txObj)
-          this.sign(message, provider.pubkey)
-          console.log("sign: " + message)
-        } else if (!this.sudtAmount || this.sudtAmount == 0) {
-          this.$alert(this.t_('TipSudtAmountZero'), this.t_('TipTitleNote'), {
-            confirmButtonText: this.t_('TipConfirm'),
-          }).then(() => {
-            this.disableDeposit = false
-            this.depositLoading = false
-          })
-        }
-      } else {
-        this.$alert(this.t_('TipCkbInsufficient'), this.t_('TipTitleNote'), {
-          confirmButtonText: this.t_('TipConfirm'),
-        }).then(() => {
-          this.disableDeposit = false
-          this.depositLoading = false
-        })
-      }
-    },
-    // Todo: Get Godwoken deposit lock by SDK
-    getGodwokenDepositLock() {
-      return new Script(
-        '0x50704b84ecb4c4b12b43c7acb260ddd69171c21b4c0ba15f3c469b7d143f6f18',
-        '0x702359ea7f073558921eb50d8c1c77e92f760c8f8656bde4995f26b8963e2dd8a900000014000000340000009d000000a500000017c2cc949b24bbc469d20617839cfabc0665e379dee18eae03a77801f8eb09416900000010000000300000003100000007521d0aa8e66ef441ebc31204d86bb23fc83e9edc58c19dbb1b0ebe64336ec00134000000702359ea7f073558921eb50d8c1c77e92f760c8f8656bde4995f26b8963e2dd8c094f55971bbf9974bea6bd7b9d4c35f6b5437dc803a0900000000c002000000',
-        HashType.type,
-      )
-    },
-    sign(message, pubkey) {
-      const url = new URL(`${process.env.UNIPASS_URL}/sign`)
-      url.searchParams.set('success_url', window.location.href)
-      url.searchParams.set('message', message)
-      url.searchParams.set('pubkey', pubkey)
-      window.location.replace(url.href)
-    },
-    async sendDepositAllToGwTx(sig) {
-      try {
-        const txObj = this.Sea.localStorage('depositAllToGwTx')
-        const txHash = await getSUDTSignCallback(sig, txObj)
-        console.log("deposit all to gw. tx hash: " + txHash)
-        if (txHash) {
-          this.$alert(this.t_('TipDeposit') + this.GODWOKEN_BRIDGE_URL,
-            this.t_('TipTitleTransactionSuccess'), {
-            confirmButtonText: this.t_('TipConfirm'),
-          })
-        } else {
-          this.$message.error(this.t_('TransactionFailed'))
-        }
-      } catch (error) {
-        this.$message.error(error.message)
-        console.error('error', error.message)
-      }
-      this.Sea.params('unipass_ret', '')
+      this.$router.push({
+        path: '/deposit',
+        query: this.$route.query,
+      })
     },
     bindTx(tx) {
       if (this.isRejected(tx)) {

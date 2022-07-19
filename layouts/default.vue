@@ -11,7 +11,6 @@ import PWCore, {
   Amount,
   AmountUnit,
   Script,
-  HashType
 } from '@lay2/pw-core'
 import { getCkbEnv } from '~/assets/js/config'
 import { getAddress } from '~/assets/js/utils'
