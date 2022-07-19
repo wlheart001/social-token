@@ -171,7 +171,7 @@ import { Address, AddressType, Amount, AmountUnit, HashType, Script } from '@lay
 import Qrcode from '~/components/qrcode.vue'
 import TxItem from '~/components/tx.vue'
 import { checkCellsIsLive } from '~/assets/js/helper'
-import { buildDepositAllSudtSignMessage, minCkbToDeposit } from '~/assets/js/sudt/deposit-sudt-builder'
+import { buildDepositSudtSignMessage, minCkbToDeposit } from '~/assets/js/sudt/deposit-sudt-builder'
 import { getSUDTSignCallback } from '~/assets/js/sudt/sudt-tranfer'
 import { isCkbEnough } from '~/assets/js/sudt/utils'
 
@@ -409,7 +409,7 @@ export default {
 
       if (enough) {
         if (toAddress && this.sudtAmount && this.sudtTokenId) {
-          const { tx, txObj, message } = await buildDepositAllSudtSignMessage(
+          const { tx, txObj, message } = await buildDepositSudtSignMessage(
             this.sudtTokenId,
             new Address(toAddress, AddressType.ckb),
             this.sudtAmount,

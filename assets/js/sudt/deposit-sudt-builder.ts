@@ -23,10 +23,10 @@ const minDepositLockCellCkb = new Amount('325', AmountUnit.ckb)
 export const minCkbToDeposit = new Amount('325.5', AmountUnit.ckb)
 const minChangeCellCkb = new Amount('61', AmountUnit.ckb)
 
-export async function buildDepositAllSudtSignMessage(
+export async function buildDepositSudtSignMessage(
   sudtTokenId: string,
   toAddress: Address,
-  allAmount: Amount,
+  amount: Amount,
   masterPubkey: string,
 ) {
   const provider = new UsdtProvider(masterPubkey)
@@ -37,7 +37,7 @@ export async function buildDepositAllSudtSignMessage(
     process.env.CKB_INDEXER_URL as string,
   )
 
-  const builderOption: DepositAllSudtBuilderOptions = {
+  const builderOption: DepositSudtBuilderOptions = {
     witnessArgs: {
       lock: '0x' + '0'.repeat(lockLen),
       input_type: '',
@@ -48,10 +48,10 @@ export async function buildDepositAllSudtSignMessage(
     autoCalculateCapacity: true
   }
   const sudt = new SUDT(sudtTokenId)
-  const builder = new DepositAllSudtBuilder(
+  const builder = new DepositSudtBuilder(
     sudt,
     toAddress,
-    allAmount,
+    amount,
     cellDeps,
     builderOption,
   )
@@ -65,13 +65,13 @@ export async function buildDepositAllSudtSignMessage(
   return { tx, txObj, message }
 }
 
-export interface DepositAllSudtBuilderOptions extends BuilderOption {
+export interface DepositSudtBuilderOptions extends BuilderOption {
   autoCalculateCapacity?: boolean
   minimumOutputCellCapacity?: Amount
   maximumOutputCellCapacity?: Amount
 }
 
-export class DepositAllSudtBuilder extends Builder {
+export class DepositSudtBuilder extends Builder {
   fee: Amount
 
   inputCells: Cell[] = []
@@ -84,9 +84,9 @@ export class DepositAllSudtBuilder extends Builder {
   constructor(
     private sudt: SUDT,
     private address: Address,
-    private allAmount: Amount,
+    private amount: Amount,
     private cellDeps: CellDep[],
-    protected options: DepositAllSudtBuilderOptions = {},
+    protected options: DepositSudtBuilderOptions = {},
   ) {
     super(options.feeRate, options.collector, options.witnessArgs)
     this.fee = new Amount('0')
@@ -112,7 +112,7 @@ export class DepositAllSudtBuilder extends Builder {
     const unspentSUDTCells = await this.collector.collectSUDT(
       this.sudt,
       PWCore.provider.address,
-      { neededAmount: this.allAmount },
+      { neededAmount: this.amount },
     )
 
     let inputsSudtSum = new Amount('0')
