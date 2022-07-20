@@ -19,8 +19,8 @@ import { UsdtProvider } from './sudt-provider'
 import { UnipassIndexerCollector } from './unipass-indexer-collector'
 
 const maxOutputCellCapacity = new Amount('1000', AmountUnit.ckb)
-const minDepositLockCellCkb = new Amount('325', AmountUnit.ckb)
-export const minCkbToDeposit = new Amount('325.5', AmountUnit.ckb)
+const minDepositLockCellCkb = new Amount('379', AmountUnit.ckb)
+export const minCkbToDeposit = new Amount('379.5', AmountUnit.ckb)
 const minChangeCellCkb = new Amount('61', AmountUnit.ckb)
 
 export async function buildDepositSudtSignMessage(

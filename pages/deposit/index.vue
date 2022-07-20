@@ -39,24 +39,14 @@
   </div>
 </template>
 <script>
-import PWCore, {
+import {
   Address,
   AddressType,
-  Amount,
   AmountUnit,
   Builder,
-  HashType,
-  Reader,
-  RPC,
-  Script,
-  SerializeWitnessArgs,
-  normalizers,
-  transformers,
 } from '@lay2/pw-core'
-import UnipassBuilder from '~/assets/js/UnipassBuilder.ts'
-import UnipassBuilderClear from '~/assets/js/UnipassBuilderClear.ts'
-import UnipassSigner from '~/assets/js/UnipassSigner.ts'
 import { buildDepositSudtSignMessage, minCkbToDeposit } from '~/assets/js/sudt/deposit-sudt-builder'
+import { generateDepositLock } from '~/assets/js/sudt/deposit-lock-generator'
 import { getSUDTSignCallback } from '~/assets/js/sudt/sudt-tranfer'
 import { isCkbEnough } from '~/assets/js/sudt/utils'
 
@@ -65,11 +55,7 @@ export default {
     const name = this.$route.query.name
     const checkAddress = (_rule, value, callback) => {
       try {
-        if (value.startsWith('ckb') || value.startsWith('ckt')) {
-          // eslint-disable-next-line no-new
-          new Address(value, AddressType.ckb)
-          callback()
-        } else if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
+        if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
           // eslint-disable-next-line no-new
           new Address(value, AddressType.eth)
           callback()
@@ -137,13 +123,16 @@ export default {
       }
       return ''
     },
-    godwoken_bridge_url() {
-      if (process.env.NODE_ENV === 'development') {
+    isTestNet() {
+      return process.env.NODE_ENV === 'development'
+    },
+    godwokenBridgeUrl() {
+      if (this.isTestNet) {
         return process.env.GODWOKEN_BRIDGE_TESTNET
       } else {
         return process.env.GODWOKEN_BRIDGE_MAINNET
       }
-    }
+    },
   },
   beforeUnmount() {
   },
@@ -193,7 +182,7 @@ export default {
       this.loading = true
 
       const provider = this.provider
-      const toAddress = this.getGodwokenDepositLock().toAddress().toCKBAddress()
+      const toAddress = generateDepositLock(this.form.address, this.isTestNet).toAddress().toCKBAddress()
 
       const enough = await isCkbEnough(minCkbToDeposit)
 
@@ -225,14 +214,6 @@ export default {
         })
       }
     },
-    // Todo: Get Godwoken deposit lock by SDK
-    getGodwokenDepositLock() {
-      return new Script(
-        '0x50704b84ecb4c4b12b43c7acb260ddd69171c21b4c0ba15f3c469b7d143f6f18',
-        '0x702359ea7f073558921eb50d8c1c77e92f760c8f8656bde4995f26b8963e2dd8a900000014000000340000009d000000a500000017c2cc949b24bbc469d20617839cfabc0665e379dee18eae03a77801f8eb09416900000010000000300000003100000007521d0aa8e66ef441ebc31204d86bb23fc83e9edc58c19dbb1b0ebe64336ec00134000000702359ea7f073558921eb50d8c1c77e92f760c8f8656bde4995f26b8963e2dd8c094f55971bbf9974bea6bd7b9d4c35f6b5437dc803a0900000000c002000000',
-        HashType.type,
-      )
-    },
     sign(message, pubkey) {
       const url = new URL(`${process.env.UNIPASS_URL}/sign`)
       url.searchParams.set('success_url', window.location.href)
@@ -246,7 +227,7 @@ export default {
         const txHash = await getSUDTSignCallback(sig, txObj)
         console.log("deposit all to gw. tx hash: " + txHash)
         if (txHash) {
-          this.$alert(this.t_('TipDeposit') + this.godwoken_bridge_url,
+          this.$alert(this.t_('TipDeposit') + this.godwokenBridgeUrl,
             this.t_('TipTitleTransactionSuccess'), {
             confirmButtonText: this.t_('TipConfirm'),
           }).then(() => {
