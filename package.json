@@ -11,6 +11,10 @@
     "yarn": "yarn"
   },
   "dependencies": {
+    "@ckb-lumos/base": "^0.18.0",
+    "@ckb-lumos/bi": "^0.18.0",
+    "@ckb-lumos/codec": "^0.18.0",
+    "@ckb-lumos/lumos": "^0.18.0",
     "@nervosnetwork/ckb-sdk-utils": "^0.41.1",
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/google-gtag": "^1.0.4",
