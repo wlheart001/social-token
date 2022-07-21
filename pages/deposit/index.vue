@@ -124,7 +124,7 @@ export default {
       return ''
     },
     isTestNet() {
-      return process.env.NODE_ENV === 'development'
+      return process.env.NETWORK_TYPE === 'TESTNET'
     },
     godwokenBridgeUrl() {
       if (this.isTestNet) {
