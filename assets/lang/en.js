@@ -105,7 +105,7 @@ module.exports = {
     RejectSign: 'Refuse to sign',
     PubkeyMismatch: 'Incorrect pubkey',
     TipTitleNote: 'Note',
-    TipCkbInsufficient: `Your CKB is less than 325 CKB.`,
+    TipCkbInsufficient: `Your CKB is less than 379.5 CKB.`,
     TipConfirm: 'Confim',
     TipSudtAmountZero: `Your sUDT amount is 0.`,
     TipTitleTransactionSuccess: 'Transaction submitted',

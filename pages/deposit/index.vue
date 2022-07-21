@@ -45,10 +45,9 @@ import {
   AmountUnit,
   Builder,
 } from '@lay2/pw-core'
-import { buildDepositSudtSignMessage, minCkbToDeposit } from '~/assets/js/sudt/deposit-sudt-builder'
+import { buildDepositSudtSignMessage, isCkbEnough, minCkbToDeposit } from '~/assets/js/sudt/deposit-sudt-builder'
 import { generateDepositLock } from '~/assets/js/sudt/deposit-lock-generator'
 import { getSUDTSignCallback } from '~/assets/js/sudt/sudt-tranfer'
-import { isCkbEnough } from '~/assets/js/sudt/utils'
 
 export default {
   data() {
@@ -127,11 +126,7 @@ export default {
       return process.env.NETWORK_TYPE === 'TESTNET'
     },
     godwokenBridgeUrl() {
-      if (this.isTestNet) {
-        return process.env.GODWOKEN_BRIDGE_TESTNET
-      } else {
-        return process.env.GODWOKEN_BRIDGE_MAINNET
-      }
+      return process.env.GODWOKEN_BRIDGE_URL
     },
   },
   beforeUnmount() {
@@ -184,7 +179,7 @@ export default {
       const provider = this.provider
       const toAddress = generateDepositLock(this.form.address, this.isTestNet).toAddress().toCKBAddress()
 
-      const enough = await isCkbEnough(minCkbToDeposit)
+      const enough = await isCkbEnough(minCkbToDeposit, this.sudtTokenId, this.sudtAmount)
 
       if (enough) {
         if (toAddress && this.sudtAmount && this.sudtTokenId) {

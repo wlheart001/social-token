@@ -102,7 +102,7 @@ module.exports = {
     RejectSign: '拒绝签名',
     PubkeyMismatch: '公钥不匹配',
     TipTitleNote: '提示',
-    TipCkbInsufficient: `您的 CKB 余额小于 325 CKB`,
+    TipCkbInsufficient: `您的 CKB 余额小于 379.5 CKB`,
     TipConfirm: '确认',
     TipSudtAmountZero: `您的 sUDT 余额为 0`,
     TipTitleTransactionSuccess: '交易成功',
