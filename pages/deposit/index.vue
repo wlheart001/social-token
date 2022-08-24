@@ -168,7 +168,7 @@ export default {
       const amount = new BigNumber(process.env.EXCHANGE_SUDT_AMOUNT).div(
         new BigNumber('1' + '0'.repeat(this.decimals)),
       )
-      return new Amount(amount).toString(this.decimals, {
+      return new Amount(amount, this.decimals).toString(this.decimals, {
         commify: true,
         fixed: this.decimals >= 4 ? 4 : this.decimals || undefined,
       })
