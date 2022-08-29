@@ -33,7 +33,8 @@ export async function isCkbEnough(minCkb: Amount, sudtTokenId: string, sudtAmoun
   return allCkb.gte(minCkb)
 }
 
-export async function requestTx(
+// request a partial signed transaction for exchanging SUDT for CKB
+export async function requestPartialSignedTx(
   sudt: Script,
   myAddress: Address,
   toAddress: Address,

@@ -54,11 +54,11 @@ import { BigNumber } from 'bignumber.js'
 import { Address, AddressType, Amount, AmountUnit } from '@lay2/pw-core'
 import {
   buildSignMessage,
-  requestTx,
+  requestPartialSignedTx,
 } from '~/assets/js/sudt/deposit-sudt-builder'
 import { sendTx } from '~/assets/js/sudt/sudt-tranfer'
 import { generateDepositLock } from '~/assets/js/sudt/deposit-lock-generator'
-import { parseToAddress, parseToLomusScript } from '~/assets/js/utils'
+import { parseToAddress, parseToLomusScript, debug } from '~/assets/js/utils'
 
 export default {
   data() {
@@ -272,7 +272,7 @@ export default {
         hash_type: this.sudt.hashType,
         args: this.sudt.args,
       }
-      const tx = await requestTx(
+      const tx = await requestPartialSignedTx(
         sudt,
         provider.address,
         toAddress,
@@ -280,15 +280,16 @@ export default {
         amount.toHexString(),
       )
       const { txObj, messages } = await buildSignMessage(tx, provider.pubkey)
-      console.log('messages: %o', messages)
       this.Sea.localStorage('depositToGwTx', txObj)
       this.Sea.localStorage('depositSignMessages', messages)
 
       let message = ''
       for (const msg of messages) {
-        if (parseToAddress(!this.isTestNet, parseToLomusScript(msg.lock)) === provider.address) {
+        if (
+          parseToAddress(!this.isTestNet, parseToLomusScript(msg.lock)) ===
+          provider.address
+        ) {
           message = msg.message
-          console.log('sign: ' + message)
           break
         }
       }
@@ -298,7 +299,6 @@ export default {
         return
       }
       this.sign(message, provider.pubkey)
-      console.log('sign message: ' + message)
     },
     sign(message, pubkey) {
       const url = new URL(`${process.env.UNIPASS_URL}/sign`)
@@ -307,13 +307,19 @@ export default {
       url.searchParams.set('pubkey', pubkey)
       window.location.replace(url.href)
     },
-    async sendDepositToGwTx(sig, myAddr) {
+    async sendDepositToGwTx(sig) {
       try {
         const provider = this.Sea.localStorage('provider')
         const txObj = this.Sea.localStorage('depositToGwTx')
         const signMsgs = this.Sea.localStorage('depositSignMessages')
-        const txHash = await sendTx(sig, !this.isTestNet, txObj, provider.address, signMsgs)
-        console.log('deposit to gw. tx hash: ' + txHash)
+        const txHash = await sendTx(
+          sig,
+          !this.isTestNet,
+          txObj,
+          provider.address,
+          signMsgs,
+        )
+        debug('deposit to gw. tx hash: ' + txHash)
         if (txHash) {
           this.$alert(
             this.t_('TipDeposit') + this.godwokenBridgeUrl,

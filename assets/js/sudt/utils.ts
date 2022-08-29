@@ -3,13 +3,14 @@ import PWCore, {
   SUDT,
 } from '@lay2/pw-core'
 import { UnipassIndexerCollector } from './unipass-indexer-collector'
+import { debug } from '../utils'
 
 export async function getCkbBalance() {
   if (PWCore.defaultCollector) {
     const balance = await PWCore.defaultCollector.getBalance(
       PWCore.provider.address,
     )
-    console.log('ckb balance = ', balance)
+    debug('ckb balance = ' + balance)
     return balance
   }
   return new Amount('0')
