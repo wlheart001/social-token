@@ -121,3 +121,9 @@ export function parseToLomusScript(script: PwScript) {
     args: script.args,
   }
 }
+
+export function debug(message?: any, ...optionalParams: any[]) {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(message, ...optionalParams);
+  }
+}
